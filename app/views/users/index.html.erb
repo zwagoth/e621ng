@@ -35,13 +35,13 @@
             <td>
               <%= link_to_user user %>
             </td>
-            <td><%= link_to user.posts.count, posts_path(:tags => "user:#{user.name}") %></td>
-            <td><%= user.posts.deleted.count %></td>
+            <td><%= link_to user.post_upload_count, posts_path(:tags => "user:#{user.name}") %></td>
+            <td><%= user.post_deleted_count %></td>
             <% if CurrentUser.is_moderator? %>
               <td><%= user.email %></td>
               <td><%= link_to_ip(user.last_ip_addr) %></td>
             <% end %>
-            <td><%= link_to user.note_versions.count, note_versions_path(:search => {:updater_id => user.id}) %></td>
+            <td><%= link_to user.note_version_count, note_versions_path(:search => {:updater_id => user.id}) %></td>
             <td><%= link_to user.post_update_count, post_versions_path(:search => {:updater_id => user.id}) %></td>
             <td><%= "(Unactivated)" unless user.is_verified? %> <%= user.level_string %></td>
             <td><%= compact_time user.created_at %></td>
