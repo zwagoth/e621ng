@@ -14,13 +14,18 @@
           <th>Name</th>
           <th>Posts</th>
           <th>Deleted</th>
+          <th>Post Changes</th>
+          <th>Note Changes</th>
+          <th>Wiki Changes</th>
+          <th>Artist Changes</th>
+          <th>Pool Changes</th>
+          <th>Forum Posts</th>
+          <th>Comments</th>
+          <th>Level</th>
           <% if CurrentUser.is_moderator? %>
             <th>Email</th>
             <th>Last IP</th>
           <% end %>
-          <th>Notes</th>
-          <th>Edits</th>
-          <th>Level</th>
           <th>Joined</th>
         </tr>
       </thead>
@@ -35,14 +40,19 @@
             <td>
               <%= link_to_user user %>
             </td>
-            <td><%= link_to user.post_upload_count, posts_path(:tags => "user:#{user.name}") %></td>
+            <td><%= link_to user.post_upload_count, posts_path(tags: "user:#{user.name}") %></td>
             <td><%= user.post_deleted_count %></td>
+            <td><%= link_to user.post_update_count, post_versions_path(search: {updater_id: user.id}) %></td>
+            <td><%= link_to user.note_version_count, note_versions_path(search: {updater_id: user.id}) %></td>
+            <td><%= link_to user.wiki_page_version_count, wiki_page_versions_path(search: {updater_id: user.id}) %></td>
+            <td><%= link_to user.artist_version_count, artist_versions_path(search: {updater_id: user.id}) %></td>
+            <td><%= link_to user.pool_version_count, pool_versions_path(search: {updater_id: user.id}) %></td>
+            <td><%= link_to user.forum_post_count, forum_posts_path(search: {creator_id: user.id}) %></td>
+            <td><%= link_to user.comment_count, comments_path(search: {creator_id: user.id}, group_by: "comment") %></td>
             <% if CurrentUser.is_moderator? %>
               <td><%= user.email %></td>
               <td><%= link_to_ip(user.last_ip_addr) %></td>
             <% end %>
-            <td><%= link_to user.note_version_count, note_versions_path(:search => {:updater_id => user.id}) %></td>
-            <td><%= link_to user.post_update_count, post_versions_path(:search => {:updater_id => user.id}) %></td>
             <td><%= "(Unactivated)" unless user.is_verified? %> <%= user.level_string %></td>
             <td><%= compact_time user.created_at %></td>
           </tr>
