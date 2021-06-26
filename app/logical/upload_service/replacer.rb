@@ -35,7 +35,7 @@ class UploadService
       raise ProcessingError, "Could not create post file backup?" if !repl.valid?
     end
 
-    def process!
+    def process!(penalize_current_uploader:)
       # Prevent trying to replace deleted posts
       raise ProcessingError, "Cannot replace post: post is deleted." if post.is_deleted?
 
@@ -91,7 +91,17 @@ class UploadService
       rescale_notes(post)
       update_ugoira_frame_data(post, upload)
 
-      replacement.update({status: 'approved', approver_id: CurrentUser.id})
+      replacement.update({
+                           status: 'approved',
+                           approver_id: CurrentUser.id,
+                           uploader_id_on_approve: post.uploader_id_before_last_save,
+                           penalize_uploader_on_approve: penalize_current_uploader
+                         })
+
+      UserStatus.for_user(post.uploader_id_before_last_save).update_all("own_post_replaced_count = own_post_replaced_count + 1")
+      if penalize_current_uploader
+        UserStatus.for_user(post.uploader_id_before_last_save).update_all("own_post_replaced_penalize_count = own_post_replaced_penalize_count + 1")
+      end
 
       if post.is_video?
         post.generate_video_samples(later: true)

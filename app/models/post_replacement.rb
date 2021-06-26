@@ -171,11 +171,11 @@ class PostReplacement < ApplicationRecord
   end
 
   module ProcessingMethods
-    def approve!
+    def approve!(penalize_current_uploader:)
       transaction do
         ModAction.log(:post_replacement_accept, {post_id: post.id, replacement_id: self.id, old_md5: post.md5, new_md5: self.md5})
         processor = UploadService::Replacer.new(post: post, replacement: self)
-        processor.process!
+        processor.process!(penalize_current_uploader: penalize_current_uploader)
       end
     end
 
@@ -191,6 +191,7 @@ class PostReplacement < ApplicationRecord
     def reject!
       ModAction.log(:post_replacement_reject, {post_id: post.id, replacement_id: self.id})
       update_attribute(:status, 'rejected')
+      UserStatus.for_user(creator_id).update_all("post_replacement_rejected_count = post_replacement_rejected_count + 1")
     end
   end
 
@@ -226,6 +227,14 @@ class PostReplacement < ApplicationRecord
 
         if params[:creator_name].present?
           q = q.where(creator_id: User.name_to_id(params[:creator_name]))
+        end
+
+        if params[:uploader_id_on_approve].present?
+          q = q.where(uploader_id_on_approve: params[:uploader_id_on_approve].split(",").map(&:to_i))
+        end
+
+        if params[:uploader_name_on_approve].present?
+          q = q.where(uploader_id_on_approve: User.name_to_id(params[:uploader_name_on_approve]))
         end
 
         if params[:post_id].present?

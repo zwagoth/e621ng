@@ -84,7 +84,8 @@
 
             <td>
               <% if CurrentUser.is_janitor? %>
-                <%= link_to "Approve", approve_post_replacement_path(post_replacement), method: :PUT %><br>
+                <%= link_to "Approve and penalize uploader", approve_post_replacement_path(post_replacement, penalize_current_uploader: true), method: :PUT %><br>
+                <%= link_to "Approve", approve_post_replacement_path(post_replacement, penalize_current_uploader: false), method: :PUT %><br>
                 <%= link_to "Reject", reject_post_replacement_path(post_replacement), method: :PUT %><br>
                 <%= link_to "As New Post", promote_post_replacement_path(post_replacement), method: :PUT %><br>
               <% end %>

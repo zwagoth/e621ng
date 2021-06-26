@@ -579,7 +579,8 @@ class User < ApplicationRecord
 
     def upload_limit_pieces
       deleted_count = Post.deleted.for_user(id).count
-      rejected_replacement_count = PostReplacement.rejected.for_user(id).count
+      rejected_replacement_count = post_replacement_rejected_count
+      replaced_penalize_count = own_post_replaced_penalize_count
       unapproved_count = Post.pending_or_flagged.for_user(id).count
       unapproved_replacements_count = PostReplacement.pending.for_user(id).count
       approved_count = Post.for_user(id).where('is_flagged = false AND is_deleted = false AND is_pending = false').count
@@ -751,6 +752,18 @@ class User < ApplicationRecord
 
     def negative_feedback_count
       feedback.negative.count
+    end
+
+    def post_replacement_rejected_count
+      user_status.post_replacement_rejected_count
+    end
+
+    def own_post_replaced_count
+      user_status.own_post_replaced_count
+    end
+
+    def own_post_replaced_penalize_count
+      user_status.own_post_replaced_penalize_count
     end
 
     def refresh_counts!

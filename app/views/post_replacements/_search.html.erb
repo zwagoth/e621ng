@@ -2,6 +2,7 @@
   <%= f.input :md5, label: "MD5", input_html: { value: params.dig(:search, :md5) } %>
   <%= f.input :creator_name, label: "Creator", input_html: { value: params.dig(:search, :creator_name) } %>
   <%= f.input :post_id, label: "Post ID", input_html: { value: params.dig(:search, :post_id) } %>
+  <%= f.input :uploader_name_on_approve, label: "Uploader on Approve", input_html: { value: params.dig(:search, :uploader_name_on_approve) } %>
   <%= f.input :status, label: "status", collection: ["pending", "rejected", "approved", "promoted"], include_blank: true, selected: params.dig(:search, :status) %>
   <%= f.submit "Search" %>
 <% end %>

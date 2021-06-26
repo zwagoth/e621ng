@@ -25,7 +25,7 @@ class PostReplacementsController < ApplicationController
 
   def approve
     @post_replacement = PostReplacement.find(params[:id])
-    @post_replacement.approve!
+    @post_replacement.approve!(penalize_current_uploader: params[:penalize_current_uploader])
 
     respond_with(@post_replacement, location: post_path(@post_replacement.post))
   end
