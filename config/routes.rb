@@ -255,6 +255,7 @@ Rails.application.routes.draw do
       put :approve
       put :reject
       put :promote
+      put :toggle_penalize
     end
   end
   resources :deleted_posts, only: [:index]

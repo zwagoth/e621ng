@@ -1,7 +1,7 @@
 class PostReplacementsController < ApplicationController
   respond_to :html
   before_action :moderator_only, only: [:destroy]
-  before_action :janitor_only, only: [:create, :new, :approve, :reject, :promote]
+  before_action :janitor_only, only: [:create, :new, :approve, :reject, :promote, :toggle_penalize]
   content_security_policy only: [:new] do |p|
     p.img_src :self, :data, "*"
   end
@@ -28,6 +28,13 @@ class PostReplacementsController < ApplicationController
     @post_replacement.approve!(penalize_current_uploader: params[:penalize_current_uploader])
 
     respond_with(@post_replacement, location: post_path(@post_replacement.post))
+  end
+
+  def toggle_penalize
+    @post_replacement = PostReplacement.find(params[:id])
+    @post_replacement.toggle_penalize!
+    flash[:notice] = "Updated user upload limit"
+    respond_with(@post_replacement)
   end
 
   def reject

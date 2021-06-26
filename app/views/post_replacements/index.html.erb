@@ -70,6 +70,14 @@
                 <dt>Reason</dt>
                 <dd><%= post_replacement.reason %></dd>
                 <% if post_replacement.status == 'approved' %>
+                  <dt>Original Uploader</dt>
+                  <dd>
+                    <%= link_to_user post_replacement.uploader_on_approve %>,
+                    penalized: <%= post_replacement.penalize_uploader_on_approve ? "yes" : "no" %>
+                    <% if CurrentUser.is_janitor? %>
+                      <%= link_to "toggle", toggle_penalize_post_replacement_path(post_replacement), method: :PUT %>
+                    <% end %>
+                  </dd>
                   <dt>Approver</dt>
                   <dd><%= link_to_user post_replacement.approver %></dd>
                 <% end %>
