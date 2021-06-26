@@ -75,7 +75,7 @@
                     <%= link_to_user post_replacement.uploader_on_approve %>,
                     penalized: <%= post_replacement.penalize_uploader_on_approve ? "yes" : "no" %>
                     <% if CurrentUser.is_janitor? %>
-                      <%= link_to "toggle", toggle_penalize_post_replacement_path(post_replacement), method: :PUT %>
+                      <%= link_to "toggle", "#toggle", class: "replacement-toggle-penalize-action", data: { replacement_id: post_replacement.id} %><br>
                     <% end %>
                   </dd>
                   <dt>Approver</dt>
@@ -93,13 +93,13 @@
             <td>
               <% if CurrentUser.is_janitor? %>
                 <% if post_replacement.status == "pending"%>
-                  <%= link_to "Approve And Penalize Current Uploader", approve_post_replacement_path(post_replacement, penalize_current_uploader: true), method: :PUT %><br>
-                  <%= link_to "Approve", approve_post_replacement_path(post_replacement, penalize_current_uploader: false), method: :PUT %><br>
-                  <%= link_to "Reject", reject_post_replacement_path(post_replacement), method: :PUT %><br>
-                  <%= link_to "As New Post", promote_post_replacement_path(post_replacement), method: :PUT %><br>
+                  <%= link_to "Approve And Penalize Current Uploader", "#approve", class: "replacement-approve-action", data: { replacement_id: post_replacement.id, penalize: true} %><br>
+                  <%= link_to "Approve", "#approve", class: "replacement-approve-action", data: { replacement_id: post_replacement.id, penalize: false} %><br>
+                  <%= link_to "Reject", "#reject", class: "replacement-reject-action", data: { replacement_id: post_replacement.id} %><br>
+                  <%= link_to "As New Post", "#promote", class: "replacement-promote-action", data: { replacement_id: post_replacement.id} %><br>
                 <% end %>
                 <% if post_replacement.status == "original" %>
-                  <%= link_to "Reset To", approve_post_replacement_path(post_replacement, penalize_current_uploader: false), method: :PUT %><br>
+                  <%= link_to "Reset To", "#approve", class: "replacement-approve-action", data: { replacement_id: post_replacement.id, penalize: false} %><br>
                 <% end %>
               <% end %>
               <% if CurrentUser.is_moderator? %>

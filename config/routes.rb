@@ -254,7 +254,7 @@ Rails.application.routes.draw do
     member do
       put :approve
       put :reject
-      put :promote
+      post :promote
       put :toggle_penalize
     end
   end
