@@ -92,10 +92,15 @@
 
             <td>
               <% if CurrentUser.is_janitor? %>
-                <%= link_to "Approve and penalize uploader", approve_post_replacement_path(post_replacement, penalize_current_uploader: true), method: :PUT %><br>
-                <%= link_to "Approve", approve_post_replacement_path(post_replacement, penalize_current_uploader: false), method: :PUT %><br>
-                <%= link_to "Reject", reject_post_replacement_path(post_replacement), method: :PUT %><br>
-                <%= link_to "As New Post", promote_post_replacement_path(post_replacement), method: :PUT %><br>
+                <% if post_replacement.status == "pending"%>
+                  <%= link_to "Approve And Penalize Current Uploader", approve_post_replacement_path(post_replacement, penalize_current_uploader: true), method: :PUT %><br>
+                  <%= link_to "Approve", approve_post_replacement_path(post_replacement, penalize_current_uploader: false), method: :PUT %><br>
+                  <%= link_to "Reject", reject_post_replacement_path(post_replacement), method: :PUT %><br>
+                  <%= link_to "As New Post", promote_post_replacement_path(post_replacement), method: :PUT %><br>
+                <% end %>
+                <% if post_replacement.status == "original" %>
+                  <%= link_to "Reset To", approve_post_replacement_path(post_replacement, penalize_current_uploader: false), method: :PUT %><br>
+                <% end %>
               <% end %>
               <% if CurrentUser.is_moderator? %>
                 <%= link_to "Destroy", post_replacement_path(post_replacement), method: :DELETE, 'data-confirm': 'Are you sure you want to destroy this replacement?' %>

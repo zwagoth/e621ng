@@ -15,10 +15,10 @@ class PostReplacementsController < ApplicationController
   def create
     @post = Post.find(params[:post_id])
     @post_replacement = @post.replacements.create(create_params.merge(creator_id: CurrentUser.id, creator_ip_addr: CurrentUser.ip_addr))
-    if @post_replacement.errors.size == 0
-      flash[:notice] = "Post replacement submitted"
-    else
+    if @post_replacement.errors.any?
       flash[:notice] = @post_replacement.errors.full_messages.join('; ')
+    else
+      flash[:notice] = "Post replacement submitted"
     end
     respond_with(@post_replacement, location: @post)
   end
@@ -26,20 +26,34 @@ class PostReplacementsController < ApplicationController
   def approve
     @post_replacement = PostReplacement.find(params[:id])
     @post_replacement.approve!(penalize_current_uploader: params[:penalize_current_uploader])
-
+    if @post_replacement.errors.any?
+      flash[:notice] = @post_replacement.errors.full_messages.join("; ")
+    else
+      flash[:notice] = "Post replacement accepted"
+    end
     respond_with(@post_replacement, location: post_path(@post_replacement.post))
   end
 
   def toggle_penalize
     @post_replacement = PostReplacement.find(params[:id])
     @post_replacement.toggle_penalize!
-    flash[:notice] = "Updated user upload limit"
+    if @post_replacement.errors.any?
+      flash[:notice] = @post_replacement.errors.full_messages.join("; ")
+    else
+      flash[:notice] = "Updated user upload limit"
+    end
     respond_with(@post_replacement)
   end
 
   def reject
     @post_replacement = PostReplacement.find(params[:id])
     @post_replacement.reject!
+
+    if @post_replacement.errors.any?
+      flash[:notice] = @post_replacement.errors.full_messages.join("; ")
+    else
+      flash[:notice] = "Post replacement rejected"
+    end
 
     respond_with(@post_replacement)
   end
@@ -53,11 +67,17 @@ class PostReplacementsController < ApplicationController
 
   def promote
     @post_replacement = PostReplacement.find(params[:id])
-    @post = @post_replacement.promote!
-    if @post.errors.any?
-      respond_with(@post)
+    @upload = @post_replacement.promote!
+
+    if @post_replacement.errors.any?
+      flash[:notice] = @post_replacement.errors.full_messages.join("; ")
+      respond_with(@upload)
+    elsif @upload.errors.any?
+      flash[:notice] = @upload.errors.full_messages.join("; ")
+      respond_with(@upload)
     else
-      respond_with(@post.post)
+      flash[:notice] = "Post replacement promoted to post ##{@upload.post.id}"
+      respond_with(@upload.post)
     end
   end
 

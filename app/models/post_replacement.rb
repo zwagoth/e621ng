@@ -173,6 +173,11 @@ class PostReplacement < ApplicationRecord
 
   module ProcessingMethods
     def approve!(penalize_current_uploader:)
+      unless ["pending", "original"].include? status
+        errors.add(:status, "must be pending or original to approve")
+        return
+      end
+
       transaction do
         ModAction.log(:post_replacement_accept, {post_id: post.id, replacement_id: self.id, old_md5: post.md5, new_md5: self.md5})
         processor = UploadService::Replacer.new(post: post, replacement: self)
@@ -181,6 +186,11 @@ class PostReplacement < ApplicationRecord
     end
 
     def toggle_penalize!
+      if status != "approved"
+        errors.add(:status, "must be approved to penalize")
+        return
+      end
+
       if penalize_uploader_on_approve
         UserStatus.for_user(uploader_on_approve).update_all("own_post_replaced_penalize_count = own_post_replaced_penalize_count - 1")
       else
@@ -190,15 +200,25 @@ class PostReplacement < ApplicationRecord
     end
 
     def promote!
+      if status != "pending"
+        errors.add(:status, "must be pending to promote")
+        return
+      end
+
       transaction do
         processor = UploadService.new(new_upload_params)
-        new_post = processor.start!
+        new_upload = processor.start!
         update_attribute(:status, 'promoted')
-        new_post
+        new_upload
       end
     end
 
     def reject!
+      if status != "pending"
+        errors.add(:status, "must be pending to reject")
+        return
+      end
+
       ModAction.log(:post_replacement_reject, {post_id: post.id, replacement_id: self.id})
       update_attribute(:status, 'rejected')
       UserStatus.for_user(creator_id).update_all("post_replacement_rejected_count = post_replacement_rejected_count + 1")
