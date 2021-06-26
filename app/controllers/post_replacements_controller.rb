@@ -27,7 +27,7 @@ class PostReplacementsController < ApplicationController
     @post_replacement = PostReplacement.find(params[:id])
     @post_replacement.approve!(penalize_current_uploader: params[:penalize_current_uploader])
 
-    respond_with(@post_replacement)
+    respond_with(@post_replacement, location: post_path(@post_replacement.post))
   end
 
   def toggle_penalize
@@ -48,7 +48,7 @@ class PostReplacementsController < ApplicationController
     @post_replacement = PostReplacement.find(params[:id])
     @post_replacement.destroy
 
-    respond_with(@post_replacement)
+    respond_with(@post_replacement, location: post_path(@post_replacement.post))
   end
 
   def promote
@@ -59,7 +59,7 @@ class PostReplacementsController < ApplicationController
     elsif @upload.errors.any?
       respond_with(@upload)
     else
-      respond_with(@upload)
+      respond_with(@upload.post)
     end
   end
 

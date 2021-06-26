@@ -3,11 +3,11 @@ require 'test_helper'
 class PostReplacementsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
-    Sidekiq::Testing::inline!
+    Sidekiq::Testing.inline!
   end
 
   teardown do
-    Sidekiq::Testing::fake!
+    Sidekiq::Testing.fake!
   end
 
   context "The post replacements controller" do
@@ -43,7 +43,7 @@ class PostReplacementsControllerTest < ActionDispatch::IntegrationTest
     context "reject action" do
       should "reject replacement" do
         put_auth reject_post_replacement_path(@replacement), @user
-        assert_redirected_to post_replacement_path(@replacement)
+        assert_redirected_to post_path(@post)
         @replacement.reload
         @post.reload
         assert_equal @replacement.status, "rejected"
@@ -64,13 +64,25 @@ class PostReplacementsControllerTest < ActionDispatch::IntegrationTest
 
     context "promote action" do
       should "create post" do
-        put_auth promote_post_replacement_path(@replacement), @user
+        post_auth promote_post_replacement_path(@replacement), @user
         last_post = Post.last
         assert_redirected_to post_path(last_post)
         @replacement.reload
         @post.reload
         assert_equal @replacement.md5, last_post.md5
         assert_equal @replacement.status, "promoted"
+      end
+    end
+
+    context "toggle action" do
+      should "change penalize_uploader flag" do
+        put_auth approve_post_replacement_path(@replacement, penalize_current_uploader: true), @user
+        @replacement.reload
+        assert @replacement.penalize_uploader_on_approve
+        put_auth toggle_penalize_post_replacement_path(@replacement), @user
+        assert_redirected_to post_replacement_path(@replacement)
+        @replacement.reload
+        assert !@replacement.penalize_uploader_on_approve
       end
     end
 

@@ -55,8 +55,7 @@ PostReplacement.promote = function (id) {
     url: `/post_replacements/${id}/promote.json`,
     dataType: 'json'
   }).done(function (data) {
-    console.log(data);
-    Utility.notice(`Replacement promoted to post #${data.post_id}`)
+    Utility.notice(`Replacement promoted to post #${data.post.id}`)
   }).fail(function (data, status, xhr) {
     Utility.error(data.responseText);
   });

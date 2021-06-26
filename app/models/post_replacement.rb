@@ -291,6 +291,18 @@ class PostReplacement < ApplicationRecord
         where(creator_id: id.to_i)
       end
 
+      def for_uploader_on_approve(id)
+        where(uploader_id_on_approve: id.to_i)
+      end
+
+      def penalized
+        where(penalize_uploader_on_approve: true)
+      end
+
+      def not_penalized
+        where(penalize_uploader_on_approve: false)
+      end
+
       def visible(user)
         return where('status != ?', 'rejected') if user.is_anonymous?
         return all if user.is_janitor?
