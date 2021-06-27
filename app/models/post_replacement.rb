@@ -252,23 +252,23 @@ class PostReplacement < ApplicationRecord
         q = q.attribute_exact_matches(:status, params[:status])
 
         if params[:creator_id].present?
-          q = q.where(creator_id: params[:creator_id].split(",").map(&:to_i))
+          q = q.where("creator_id in (?)", params[:creator_id].split(",").first(100).map(&:to_i))
         end
 
         if params[:creator_name].present?
-          q = q.where(creator_id: User.name_to_id(params[:creator_name]))
+          q = q.where("creator_id = ?", User.name_to_id(params[:creator_name]))
         end
 
         if params[:uploader_id_on_approve].present?
-          q = q.where(uploader_id_on_approve: params[:uploader_id_on_approve].split(",").map(&:to_i))
+          q = q.where("uploader_id_on_approve in (?)", params[:uploader_id_on_approve].split(",").first(100).map(&:to_i))
         end
 
         if params[:uploader_name_on_approve].present?
-          q = q.where(uploader_id_on_approve: User.name_to_id(params[:uploader_name_on_approve]))
+          q = q.where("uploader_id_on_approve = ?", User.name_to_id(params[:uploader_name_on_approve]))
         end
 
         if params[:post_id].present?
-          q = q.where(post_id: params[:post_id].split(",").map(&:to_i))
+          q = q.where("post_id in (?)", params[:post_id].split(",").first(100).map(&:to_i))
         end
 
 
