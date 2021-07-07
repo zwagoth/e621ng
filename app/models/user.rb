@@ -866,10 +866,20 @@ class User < ApplicationRecord
         q = q.order("name")
       when "post_upload_count"
         q = q.order("user_statuses.post_count desc")
-      when "note_count"
-        q = q.order("user_statuses.note_count desc")
       when "post_update_count"
         q = q.order("user_statuses.post_update_count desc")
+      when "note_count"
+        q = q.order("user_statuses.note_count desc")
+      when "wiki_edit_count"
+        q = q.order("user_statuses.wiki_edit_count desc")
+      when "artist_edit_count"
+        q = q.order("user_statuses.artist_edit_count desc")
+      when "pool_edit_count"
+        q = q.order("user_statuses.pool_edit_count desc")
+      when "forum_post_count"
+        q = q.order("user_statuses.forum_post_count desc")
+      when "comment_count"
+        q = q.order("user_statuses.comment_count desc")
       else
         q = q.apply_default_order(params)
       end

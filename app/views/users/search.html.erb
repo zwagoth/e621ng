@@ -14,7 +14,8 @@
       <%= f.input :can_upload_free, label: "Unrestricted uploads?", collection: [%w[Yes true], %w[No false]], include_blank: true, selected: params.dig(:search, :can_upload_free) %>
       <%= f.input :can_approve_posts, label: "Approver?", collection: [%w[Yes true], %w[No false]], include_blank: true, selected: params.dig(:search, :can_approve_posts) %>
 
-      <%= f.input :order, collection: [["Join date", "date"], ["Name", "name"], ["Upload count", "post_upload_count"], ["Note count", "note_count"], ["Post update count", "post_update_count"]], selected: params.dig(:search, :order) %>
+      <%= f.input :order, collection: [["Join date", "date"], ["Name", "name"], ["Uploads", "post_upload_count"], ["Post changes", "post_update_count"], ["Note changes", "note_count"], ["Wiki changes", "wiki_edit_count"],
+                                       ["Artist changes", "artist_edit_count"], ["Pool changes", "pool_edit_count"], ["Forum posts", "forum_post_count"], ["Comments", "comment_count"]], selected: params.dig(:search, :order) %>
       <%= f.submit "Search" %>
     <% end %>
   </div>
