@@ -78,6 +78,10 @@ class UserPresenter
     template.link_to(user.post_deleted_count, template.deleted_posts_path(user_id: user.id))
   end
 
+  def replaced_upload_count(template)
+    template.link_to(user.own_post_replaced_count, template.post_replacements_path(search: {uploader_name_on_approve: user.name}))
+  end
+
   def favorite_count(template)
     template.link_to(user.favorite_count, template.favorites_path(:user_id => user.id))
   end

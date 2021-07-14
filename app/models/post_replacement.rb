@@ -3,6 +3,7 @@ class PostReplacement < ApplicationRecord
   belongs_to :post
   belongs_to :creator, class_name: "User"
   belongs_to :approver, class_name: "User", optional: true
+  belongs_to :uploader_on_approve, class_name: "User", foreign_key: :uploader_id_on_approve, optional: true
   attr_accessor :replacement_file, :replacement_url, :final_source, :tags, :is_backup
 
   validate :user_is_not_limited, on: :create
@@ -171,26 +172,56 @@ class PostReplacement < ApplicationRecord
   end
 
   module ProcessingMethods
-    def approve!
+    def approve!(penalize_current_uploader:)
+      unless ["pending", "original"].include? status
+        errors.add(:status, "must be pending or original to approve")
+        return
+      end
+
       transaction do
         ModAction.log(:post_replacement_accept, {post_id: post.id, replacement_id: self.id, old_md5: post.md5, new_md5: self.md5})
         processor = UploadService::Replacer.new(post: post, replacement: self)
-        processor.process!
+        processor.process!(penalize_current_uploader: penalize_current_uploader)
       end
     end
 
+    def toggle_penalize!
+      if status != "approved"
+        errors.add(:status, "must be approved to penalize")
+        return
+      end
+
+      if penalize_uploader_on_approve
+        UserStatus.for_user(uploader_on_approve).update_all("own_post_replaced_penalize_count = own_post_replaced_penalize_count - 1")
+      else
+        UserStatus.for_user(uploader_on_approve).update_all("own_post_replaced_penalize_count = own_post_replaced_penalize_count + 1")
+      end
+      update_attribute(:penalize_uploader_on_approve, !penalize_uploader_on_approve)
+    end
+
     def promote!
+      if status != "pending"
+        errors.add(:status, "must be pending to promote")
+        return
+      end
+
       transaction do
         processor = UploadService.new(new_upload_params)
-        new_post = processor.start!
+        new_upload = processor.start!
         update_attribute(:status, 'promoted')
-        new_post
+        new_upload
       end
     end
 
     def reject!
+      if status != "pending"
+        errors.add(:status, "must be pending to reject")
+        return
+      end
+
       ModAction.log(:post_replacement_reject, {post_id: post.id, replacement_id: self.id})
       update_attribute(:status, 'rejected')
+      UserStatus.for_user(creator_id).update_all("post_replacement_rejected_count = post_replacement_rejected_count + 1")
     end
   end
 
@@ -221,15 +252,23 @@ class PostReplacement < ApplicationRecord
         q = q.attribute_exact_matches(:status, params[:status])
 
         if params[:creator_id].present?
-          q = q.where(creator_id: params[:creator_id].split(",").map(&:to_i))
+          q = q.where("creator_id in (?)", params[:creator_id].split(",").first(100).map(&:to_i))
         end
 
         if params[:creator_name].present?
-          q = q.where(creator_id: User.name_to_id(params[:creator_name]))
+          q = q.where("creator_id = ?", User.name_to_id(params[:creator_name]))
+        end
+
+        if params[:uploader_id_on_approve].present?
+          q = q.where("uploader_id_on_approve in (?)", params[:uploader_id_on_approve].split(",").first(100).map(&:to_i))
+        end
+
+        if params[:uploader_name_on_approve].present?
+          q = q.where("uploader_id_on_approve = ?", User.name_to_id(params[:uploader_name_on_approve]))
         end
 
         if params[:post_id].present?
-          q = q.where(post_id: params[:post_id].split(",").map(&:to_i))
+          q = q.where("post_id in (?)", params[:post_id].split(",").first(100).map(&:to_i))
         end
 
 
@@ -250,6 +289,18 @@ class PostReplacement < ApplicationRecord
 
       def for_user(id)
         where(creator_id: id.to_i)
+      end
+
+      def for_uploader_on_approve(id)
+        where(uploader_id_on_approve: id.to_i)
+      end
+
+      def penalized
+        where(penalize_uploader_on_approve: true)
+      end
+
+      def not_penalized
+        where(penalize_uploader_on_approve: false)
       end
 
       def visible(user)

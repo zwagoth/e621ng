@@ -51,12 +51,13 @@
       </tr>
 
       <tr>
-        <th>Deleted Posts</th>
+        <th>Deleted/Replaced Posts</th>
         <td>
           <%= presenter.deleted_upload_count(self) %>
           <% if CurrentUser.is_moderator? %>
             [<%= link_to "sample", posts_path(:tags => "user:#{user.name} order:random limit:300 status:deleted") %>]
           <% end %>
+          / <%= presenter.replaced_upload_count(self) %>
         </td>
         <th>Post Changes</th>
         <td>

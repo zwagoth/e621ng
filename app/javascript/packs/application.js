@@ -36,6 +36,7 @@ export { default as Dtext } from '../src/javascripts/dtext.js';
 export { default as Note } from '../src/javascripts/notes.js';
 export { default as Post } from '../src/javascripts/posts.js.erb';
 export { default as PostModeMenu } from '../src/javascripts/post_mode_menu.js';
+export { default as PostReplacement } from '../src/javascripts/post_replacement.js';
 export { default as PostVersions } from '../src/javascripts/post_versions.js';
 export { default as RelatedTag } from '../src/javascripts/related_tag.js';
 export { default as Shortcuts } from '../src/javascripts/shortcuts.js';
