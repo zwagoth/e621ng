@@ -407,6 +407,8 @@ Rails.application.routes.draw do
     end
   end
 
+  options "*all", to: "application#enable_cors"
+
   # aliases
   resources :wpages, :controller => "wiki_pages"
   resources :ftopics, :controller => "forum_topics"

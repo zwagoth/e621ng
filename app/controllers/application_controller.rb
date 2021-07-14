@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   class APIThrottled < Exception; end
 
-  skip_forgery_protection if: -> { SessionLoader.new(request).has_api_authentication? }
+  skip_forgery_protection if: -> { SessionLoader.new(request).has_api_authentication? || request.options? }
   before_action :reset_current_user
   before_action :set_current_user
   before_action :normalize_search
@@ -23,16 +23,17 @@ class ApplicationController < ActionController::Base
   # here, so calling `rescue_exception` would cause a double render error.
   rescue_from ActionController::InvalidCrossOriginRequest, with: -> {}
 
+  def enable_cors
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Authorization"
+  end
+
   protected
 
   def self.rescue_with(*klasses, status: 500)
     rescue_from *klasses do |exception|
       render_error_page(status, exception)
     end
-  end
-
-  def enable_cors
-    response.headers["Access-Control-Allow-Origin"] = "*"
   end
 
   def api_check
