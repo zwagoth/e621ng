@@ -19,6 +19,8 @@
 By the time you get back the install will surely have completed.<sup>1</sup>
 7. To confirm the installation worked, open the web browser of your choice and enter `http://e621.local` into the address bar and see if the website loads correctly.
 
+The vagrantfile exposes the postgres database on port 5432 which you can use to connect with a local client. The database name is `danbooru2`, the username is `danbooru`, leave the password blank. If you already have a postgres server running on your host you will most likely need to edit the vagrantfile to prevent port conflicts.
+
 <sub><sup>1</sup> If the install did not finish by the time an activity is complete please select another activity to avoid crippling boredom.</sub>
 
 #### VirtualBox Troubleshooting
